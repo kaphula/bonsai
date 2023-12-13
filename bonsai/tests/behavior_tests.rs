@@ -69,9 +69,6 @@ fn tick(mut acc: i32, dt: f64, state: &mut State<TestActions>) -> (i32, bonsai_b
 // A test state machine that can increment and decrement.
 fn tick_with_ref(acc: &mut i32, dt: f64, state: &mut State<TestActions>) {
     let e: Event = UpdateArgs { dt }.into();
-
-    // state.tick(&e, &mut |args| match *args.action {
-
     state.tick(
         &e,
         &mut (),

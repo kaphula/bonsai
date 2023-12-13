@@ -6,7 +6,6 @@ use crate::state::State::*;
 use crate::status::Status::*;
 use crate::when_all::when_all;
 use crate::{Behavior, Status};
-
 // use serde_derive::{Deserialize, Serialize};
 
 /// The action is still running, and thus the action consumes

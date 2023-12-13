@@ -19,8 +19,6 @@ fn game_tick(bt: &mut BT<EnemyNPC, BlackBoardData>, state: &mut EnemyNPCState) -
         match *args.action {
             EnemyNPC::Run => {
                 state.perform_action("run");
-
-
                 (Success, 0.0)
             },
             EnemyNPC::HasActionPointsLeft => {
@@ -38,8 +36,6 @@ fn game_tick(bt: &mut BT<EnemyNPC, BlackBoardData>, state: &mut EnemyNPCState) -
 
                 // for the sake of example we get access blackboard and update
                 // one of its values here:
-
-                // second mutable borrow:
                 args.blackboard.get_db().times_shot += 1;
 
                 (Success, 0.0)
