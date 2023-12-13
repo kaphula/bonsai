@@ -150,7 +150,7 @@ mod tests {
     // A test state machine that can increment and decrement.
     fn tick(mut acc: i32, dt: f64, bt: &mut BT<TestActions, HashMap<String, i32>>) -> (i32, Status, f64) {
         let e: Event = UpdateArgs { dt }.into();
-        let (s, t) = bt.state.tick(&e, &mut |args| match args.action {
+        let (s, t) = bt.tick(&e, &mut |args| match args.action {
             TestActions::Inc => {
                 acc += 1;
                 (Success, args.dt)

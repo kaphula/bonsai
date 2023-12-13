@@ -15,9 +15,13 @@ use crate::{ActionArgs, Behavior, State, Status, UpdateEvent};
 ///
 /// An "entry" of the Blackboard is a key/value pair.
 #[derive(Clone, Debug)]
-pub struct BlackBoard<K>(K);
+pub struct BlackBoard<K>(pub K);
 
 impl<K> BlackBoard<K> {
+    pub fn empty() -> BlackBoard<()> {
+        BlackBoard(())
+    }
+
     pub fn get_db(&mut self) -> &mut K {
         &mut self.0
     }
@@ -60,7 +64,7 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
     pub fn tick<E, F>(&mut self, e: &E, f: &mut F) -> (Status, f64)
     where
         E: UpdateEvent,
-        F: FnMut(ActionArgs<E, A>, &mut BlackBoard<K>) -> (Status, f64),
+        F: FnMut(ActionArgs<E, A, BlackBoard<K>>) -> (Status, f64),
         A: Debug,
     {
         self.state.tick(e, &mut self.bb, f)

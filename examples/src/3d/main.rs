@@ -1,3 +1,4 @@
+use bonsai_bt::bt::BlackBoard;
 use bonsai_bt::Behavior::{If, Invert, Wait, WhenAny, While};
 use bonsai_bt::Status::{self};
 use bonsai_bt::{Action, RUNNING};
@@ -94,7 +95,7 @@ fn game_tick(
     let mut last_pos = mouse_pos(0.0, 0.0);
     // update state of behaviosuccessr tree
     #[rustfmt::skip]
-    bt.tick(&e,&mut |args: bonsai_bt::ActionArgs<Event, Animation>, blackboard|
+    bt.tick(&e,&mut |args: bonsai_bt::ActionArgs<Event, Animation, BlackBoard<HashMap<String, serde_json::Value>>>|
         match *args.action {
             Animation::LongerThan(dur) => {
                 if t > dur {

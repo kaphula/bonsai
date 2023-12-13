@@ -34,11 +34,9 @@ pub struct DroneState {
     pub fly_to_point: Option<Receiver<Status>>,
 }
 
-async fn drone_tick(
-    timer: &mut Timer,
-    drone_state: &mut DroneState,
-    bt: &mut BT<DroneAction, HashMap<String, serde_json::Value>>,
-) {
+type BlackboardType = HashMap<String, serde_json::Value>;
+
+async fn drone_tick(timer: &mut Timer, drone_state: &mut DroneState, bt: &mut BT<DroneAction, BlackboardType>) {
     // timer since bt was first invoked
     let _t = timer.duration_since_start();
 
@@ -50,7 +48,7 @@ async fn drone_tick(
 
     // update state of behaviosuccessr tree
     #[rustfmt::skip]
-    bt.tick(&e,&mut |args: bonsai_bt::ActionArgs<Event, DroneAction>, blackboard|
+    bt.tick(&e,&mut |args: bonsai_bt::ActionArgs<Event, DroneAction, bonsai_bt::bt::BlackBoard<BlackboardType>>|
         match *args.action {
             DroneAction::AvoidOthers => {
                 let avoid_state = &drone_state.avoid_others;

@@ -1,3 +1,4 @@
+use bonsai_bt::bt::BlackBoard;
 use bonsai_bt::{Event, Status::Success, UpdateArgs, BT, RUNNING};
 use ggez::mint;
 use std::collections::HashMap;
@@ -65,7 +66,7 @@ pub fn game_tick(dt: f32, cursor: mint::Point2<f32>, boid: &mut Boid, other_boid
     let win_height: f32 = *db.get("win_height").unwrap();
 
     #[rustfmt::skip]
-    bt.tick(&e,&mut |args: bonsai_bt::ActionArgs<Event, Action>, blackboard| {
+    bt.tick(&e,&mut |args: bonsai_bt::ActionArgs<Event, Action, BlackBoard<HashMap<String, f32>>>| {
         match args.action {
             Action::AvoidOthers => {
                 let avoid_factor = 0.5;

@@ -1,11 +1,12 @@
-use crate::bt::BlackBoard;
+use std::fmt::Debug;
+
 use crate::event::UpdateEvent;
-use crate::sequence::sequence;
+use crate::sequence::{sequence, SequenceArgs};
 use crate::state::State::*;
 use crate::status::Status::*;
 use crate::when_all::when_all;
 use crate::{Behavior, Status};
-use std::fmt::Debug;
+
 // use serde_derive::{Deserialize, Serialize};
 
 /// The action is still running, and thus the action consumes
@@ -13,7 +14,7 @@ use std::fmt::Debug;
 pub const RUNNING: (Status, f64) = (Running, 0.0);
 
 /// The arguments in the action callback.
-pub struct ActionArgs<'a, E: 'a, A: 'a> {
+pub struct ActionArgs<'a, E: 'a, A: 'a, B: 'a> {
     /// The event.
     pub event: &'a E,
     /// The remaining delta time. When one action terminates,
@@ -22,6 +23,8 @@ pub struct ActionArgs<'a, E: 'a, A: 'a> {
     pub dt: f64,
     /// The action running.
     pub action: &'a A,
+    /// Blackboard.
+    pub blackboard: &'a mut B,
 }
 
 /// Keeps track of a behavior.
@@ -122,7 +125,7 @@ impl<A: Clone> State<A> {
     pub fn tick<E, F, B>(&mut self, e: &E, blackboard: &mut B, f: &mut F) -> (Status, f64)
     where
         E: UpdateEvent,
-        F: FnMut(ActionArgs<E, A>, &mut B) -> (Status, f64),
+        F: FnMut(ActionArgs<E, A, B>) -> (Status, f64),
         A: Debug,
     {
         let upd = e.update(|args| Some(args.dt)).unwrap_or(None);
@@ -131,14 +134,12 @@ impl<A: Clone> State<A> {
         match (upd, self) {
             (_, &mut ActionState(ref action)) => {
                 // println!("In ActionState: {:?}", action);
-                f(
-                    ActionArgs {
-                        event: e,
-                        dt: upd.unwrap_or(0.0),
-                        action,
-                    },
+                f(ActionArgs {
+                    event: e,
+                    dt: upd.unwrap_or(0.0),
+                    action,
                     blackboard,
-                )
+                })
             }
             (_, &mut InvertState(ref mut cur)) => {
                 // println!("In InvertState: {:?}", cur);
@@ -208,12 +209,30 @@ impl<A: Clone> State<A> {
             (_, &mut SelectState(ref seq, ref mut i, ref mut cursor)) => {
                 // println!("In SelectState: {:?}", seq);
                 let select = true;
-                sequence(select, upd, seq, i, cursor, e, f, blackboard)
+                sequence(SequenceArgs {
+                    select,
+                    upd,
+                    seq,
+                    i,
+                    cursor,
+                    e,
+                    blackboard,
+                    f,
+                })
             }
             (_, &mut SequenceState(ref seq, ref mut i, ref mut cursor)) => {
                 // println!("In SequenceState: {:?}", seq);
                 let select = false;
-                sequence(select, upd, seq, i, cursor, e, f, blackboard)
+                sequence(SequenceArgs {
+                    select,
+                    upd,
+                    seq,
+                    i,
+                    cursor,
+                    e,
+                    blackboard,
+                    f,
+                })
             }
             (_, &mut WhileState(ref mut ev_cursor, ref rep, ref mut i, ref mut cursor)) => {
                 // println!("In WhileState: {:?}", ev_cursor);
